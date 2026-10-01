@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskLozano - Dashboard de Tareas 2026</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Paleta 2026 sobre Fondo Blanco */
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            
+            /* Colores Áreas / Tendencia 2026 */
+            --color-personal: #d946ef;
+            --bg-personal: #fdf4ff;
+            --color-hogar: #f97316;
+            --bg-hogar: #fff7ed;
+            --color-trabajo: #2563eb;
+            --bg-trabajo: #eff6ff;
+
+            /* Colores Estado & Prioridad */
+            --color-success: #10b981;
+            --bg-success: #ecfdf5;
+            --color-warning: #f59e0b;
+            --bg-warning: #fffbeb;
+            --color-danger: #ef4444;
+            --bg-danger: #fef2f2;
+            
+            /* Sombras & Radios */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* App Container */
+        .app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Overlay para móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 40;
+        }
+
+        /* Sidebar */
+        sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+        }
+
+        .brand i {
+            color: var(--color-trabajo);
+            font-size: 1.6rem;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            border-left: 4px solid var(--color-trabajo);
+        }
+
+        /* User Profile in Sidebar */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--color-trabajo);
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .avatar-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--color-success);
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .user-info h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 32px;
+            width: calc(100% - 280px);
+            transition: all 0.3s ease;
+        }
+
+        /* Header Mobile / Main Header */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .menu-toggle {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .greeting h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .greeting p {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--color-trabajo);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-main);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--color-success);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Filter Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.9rem;
+            background-color: white;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        /* Task List Grid */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .task-card {
+            background-color: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .task-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .area-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .area-personal { background: var(--bg-personal); color: var(--color-personal); }
+        .area-hogar { background: var(--bg-hogar); color: var(--color-hogar); }
+        .area-trabajo { background: var(--bg-trabajo); color: var(--color-trabajo); }
+
+        .user-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background-color: #f1f5f9;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .task-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .priority-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .p-urgente { background-color: var(--color-danger); }
+        .p-alta { background-color: var(--color-warning); }
+        .p-normal { background-color: var(--color-trabajo); }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .action-btn.complete:hover {
+            background-color: var(--bg-success);
+            color: var(--color-success);
+            border-color: var(--color-success);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 900px) {
+            sidebar {
+                transform: translateX(-100%);
+            }
+            sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.open {
+                display: block;
+            }
+            main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            .mobile-header {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <sidebar id="sidebar">
+            <div>
+                <div class="brand">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>TaskLozano</span>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">Campos / Áreas</div>
+                    <ul class="nav-list">
+                        <li class="nav-item active" onclick="filterArea('all')"><i class="fa-solid fa-border-all"></i> Todas las tareas</li>
+                        <li class="nav-item" onclick="filterArea('Personal')"><i class="fa-solid fa-user-astronaut" style="color:var(--color-personal)"></i> Personal</li>
+                        <li class="nav-item" onclick="filterArea('Hogar')"><i class="fa-solid fa-house-chimney" style="color:var(--color-hogar)"></i> Hogar</li>
+                        <li class="nav-item" onclick="filterArea('Trabajo')"><i class="fa-solid fa-briefcase" style="color:var(--color-trabajo)"></i> Trabajo</li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">Asignado a</div>
+                    <ul class="nav-list">
+                        <li class="nav-item" onclick="filterUser('all')"><i class="fa-solid fa-users"></i> Ver Todos</li>
+                        <li class="nav-item" onclick="filterUser('Lorenzo')"><i class="fa-solid fa-user-check"></i> Solo Lorenzo</li>
+                        <li class="nav-item" onclick="filterUser('Gloria')"><i class="fa-solid fa-user-check"></i> Solo Gloria</li>
+                        <li class="nav-item" onclick="filterUser('Ambos')"><i class="fa-solid fa-heart"></i> Compartidas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Profile Lorenzo (Avatar Cómic Ilustrado) -->
+            <div class="user-profile">
+                <div style="position: relative;">
+                    <div class="avatar-wrapper">
+                        <svg class="avatar-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Circle -->
+                            <circle cx="50" cy="50" r="50" fill="#e2e8f0"/>
+                            <!-- Jacket/Suit -->
+                            <path d="M 20 100 Q 20 70 50 70 Q 80 70 80 100 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                            <!-- Shirt -->
+                            <polygon points="42,70 50,85 58,70" fill="#ffffff"/>
+                            <!-- Neck -->
+                            <rect x="44" y="52" width="12" height="18" fill="#fdba74"/>
+                            <!-- Head/Face -->
+                            <ellipse cx="50" cy="42" rx="18" ry="22" fill="#fed7aa" stroke="#0f172a" stroke-width="2"/>
+                            <!-- Beard & Hair (Grey Comic Style) -->
+                            <path d="M 32 38 C 30 20 70 20 68 38 C 72 25 28 25 32 38 Z" fill="#94a3b8"/>
+                            <path d="M 32 42 Q 32 62 50 64 Q 68 62 68 42 Q 62 60 50 60 Q 38 60 32 42 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5"/>
+                            <!-- Glasses -->
+                            <circle cx="42" cy="40" r="6" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                            <circle cx="58" cy="40" r="6" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                            <line x1="48" y1="40" x2="52" y2="40" stroke="#0f172a" stroke-width="2"/>
+                            <!-- Eyes & Smile -->
+                            <circle cx="42" cy="40" r="1.5" fill="#0f172a"/>
+                            <circle cx="58" cy="40" r="1.5" fill="#0f172a"/>
+                            <path d="M 46 52 Q 50 55 54 52" fill="none" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="status-badge"></div>
+                </div>
+                <div class="user-info">
+                    <h4>Lorenzo Lozano</h4>
+                    <p>Modo Dual / TDAH Focus</p>
+                </div>
+            </div>
+        </sidebar>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Mobile Bar -->
+            <div class="mobile-header">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <h2 style="font-weight: 800; font-size: 1.2rem;">TaskLozano</h2>
+                <div></div>
+            </div>
+
+            <!-- Header -->
+            <div class="top-bar">
+                <div class="greeting">
+                    <h1>¡Hola, Lorenzo! 👋</h1>
+                    <p>Aquí tienes el estado de vuestro flujo de trabajo de hoy.</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="sendDailyEmail()"><i class="fa-solid fa-paper-plane"></i> Resumen Email</button>
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Nueva Tarea</button>
+                </div>
+            </div>
+
+            <!-- KPI Dashboard -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header"><span>Pendientes</span><i class="fa-solid fa-clock"></i></div>
+                    <div class="kpi-value" id="kpiPending">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header"><span>En Progreso</span><i class="fa-solid fa-spinner"></i></div>
+                    <div class="kpi-value" id="kpiProgress">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header"><span>Completadas</span><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="kpi-value" id="kpiCompleted">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header"><span>Productividad</span><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="kpi-value" id="kpiRate">0%</div>
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                </div>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="controls">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar tarea..." oninput="renderTasks()">
+                </div>
+                <div class="filter-tabs">
+                    <div class="tab active" onclick="filterStatus('all', this)">Todas</div>
+                    <div class="tab" onclick="filterStatus('Por Hacer', this)">Por Hacer</div>
+                    <div class="tab" onclick="filterStatus('En Progreso', this)">En Progreso</div>
+                    <div class="tab" onclick="filterStatus('Completada', this)">Completadas</div>
+                </div>
+            </div>
+
+            <!-- Task Grid -->
+            <div class="task-grid" id="taskGrid">
+                <!-- Cards render dinámicamente -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Añadir Nueva Tarea</h3>
+                <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <div class="form-group">
+                    <label>Título de la Tarea</label>
+                    <input type="text" id="taskTitle" required placeholder="Ej. Revisar contrato de oficina">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="taskDesc" rows="3" placeholder="Detalles o notas rápidas..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Campo / Área</label>
+                        <select id="taskArea">
+                            <option value="Personal">Personal</option>
+                            <option value="Hogar">Hogar</option>
+                            <option value="Trabajo">Trabajo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Asignado A</label>
+                        <select id="taskUser">
+                            <option value="Lorenzo">Lorenzo</option>
+                            <option value="Gloria">Gloria</option>
+                            <option value="Ambos">Ambos / Casa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prioridad</label>
+                        <select id="taskPriority">
+                            <option value="Urgente">Urgente</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Normal" selected>Normal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado Inicial</label>
+                        <select id="taskStatus">
+                            <option value="Por Hacer">Por Hacer</option>
+                            <option value="En Progreso">En Progreso</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:12px;">Guardar Tarea</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de lógica e interacción -->
+    <script>
+        // Web Audio API para efectos de sonido táctiles TDAH
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'complete') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'snooze') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.12);
+            }
+        }
+
+        let tasks = JSON.parse(localStorage.getItem('tasklozano_tasks')) || [
+            { id: 1, title: 'Revisar finanzas mensuales', desc: 'Presupuesto familiar y ahorros', area: 'Hogar', user: 'Ambos', priority: 'Urgente', status: 'Por Hacer' },
+            { id: 2, title: 'Preparar presentación Q4', desc: 'Diapositivas estratégicas 2026', area: 'Trabajo', user: 'Lorenzo', priority: 'Alta', status: 'En Progreso' },
+            { id: 3, title: 'Planificar menú semanal', desc: 'Comprar ingredientes saludables', area: 'Hogar', user: 'Gloria', priority: 'Normal', status: 'Completada' }
+        ];
+
+        let currentArea = 'all';
+        let currentUser = 'all';
+        let currentStatus = 'all';
+
+        function saveToStorage() {
+            localStorage.setItem('tasklozano_tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateKPIs();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('open');
+        }
+
+        function filterArea(area) {
+            currentArea = area;
+            document.querySelectorAll('.nav-section .nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderTasks();
+        }
+
+        function filterUser(user) {
+            currentUser = user;
+            renderTasks();
+        }
+
+        function filterStatus(status, el) {
+            currentStatus = status;
+            document.querySelectorAll('.filter-tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            renderTasks();
+        }
+
+        function toggleTaskState(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                if (task.status === 'Por Hacer') {
+                    task.status = 'En Progreso';
+                    playSound('snooze');
+                } else if (task.status === 'En Progreso') {
+                    task.status = 'Completada';
+                    playSound('complete');
+                } else {
+                    task.status = 'Por Hacer';
+                }
+                saveToStorage();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveToStorage();
+        }
+
+        function renderTasks() {
+            const grid = document.getElementById('taskGrid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = tasks.filter(t => {
+                const matchesArea = currentArea === 'all' || t.area === currentArea;
+                const matchesUser = currentUser === 'all' || t.user === currentUser;
+                const matchesStatus = currentStatus === 'all' || t.status === currentStatus;
+                const matchesSearch = t.title.toLowerCase().includes(search) || t.desc.toLowerCase().includes(search);
+                return matchesArea && matchesUser && matchesStatus && matchesSearch;
+            });
+
+            grid.innerHTML = filtered.map(t => `
+                <div class="task-card">
+                    <div>
+                        <div class="task-top">
+                            <span class="area-badge area-${t.area.toLowerCase()}">${t.area}</span>
+                            <span class="user-tag"><i class="fa-solid fa-user"></i> ${t.user}</span>
+                        </div>
+                        <h3 class="task-title" style="margin-top: 12px; ${t.status === 'Completada' ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${t.title}</h3>
+                        <p class="task-desc">${t.desc}</p>
+                    </div>
+                    <div class="task-meta">
+                        <div>
+                            <span class="priority-dot p-${t.priority.toLowerCase()}"></span>
+                            <span>${t.priority}</span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="action-btn complete" onclick="toggleTaskState(${t.id})">
+                                ${t.status === 'Completada' ? '<i class="fa-solid fa-rotate-left"></i>' : '<i class="fa-solid fa-check"></i>'}
+                            </button>
+                            <button class="action-btn" onclick="deleteTask(${t.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateKPIs();
+        }
+
+        function updateKPIs() {
+            const pending = tasks.filter(t => t.status === 'Por Hacer').length;
+            const progress = tasks.filter(t => t.status === 'En Progreso').length;
+            const completed = tasks.filter(t => t.status === 'Completada').length;
+            const total = tasks.length;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('kpiPending').innerText = pending;
+            document.getElementById('kpiProgress').innerText = progress;
+            document.getElementById('kpiCompleted').innerText = completed;
+            document.getElementById('kpiRate').innerText = `${rate}%`;
+            document.getElementById('progressFill').style.width = `${rate}%`;
+        }
+
+        function openModal() {
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').style.display = 'none';
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const newTask = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                desc: document.getElementById('taskDesc').value,
+                area: document.getElementById('taskArea').value,
+                user: document.getElementById('taskUser').value,
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value
+            };
+            tasks.push(newTask);
+            saveToStorage();
+            closeModal();
+            document.getElementById('taskForm').reset();
+        }
+
+        function sendDailyEmail() {
+            const pendingList = tasks.filter(t => t.status !== 'Completada')
+                .map(t => `- [${t.area}] (${t.user}): ${t.title}`)
+                .join('%0D%0A');
+
+            const body = `Hola,%0D%0A%0D%0AAquí tienes las tareas del día a realizar:%0D%0A%0D%0A${pendingList}%0D%0A%0D%0AUn saludo,%0D%0ATaskLozano System`;
+            window.location.href = `mailto:?subject=Resumen de Tareas Pendientes - TaskLozano&body=${body}`;
+        }
+
+        renderTasks();
+    </script>
+</body>
+</html>
